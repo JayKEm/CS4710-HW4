@@ -3,9 +3,10 @@ package main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -31,15 +32,21 @@ public class Parser {
 			System.exit(1);
 		}
 		ArrayList<Recipe> recipes = new ArrayList<>();
+		Pattern pattern = Pattern.compile("\"([^\"]*)\"|(?<=,|^)([^,]*)(?:,|$)");
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
-			List<String> tokens = Arrays.asList(line.split(","));
-			int id = Integer.valueOf(tokens.get(0));
-			String cuisine = tokens.get(1).replace("\"", "");
-			ArrayList<String> ingredients = new ArrayList<>(tokens.subList(2, tokens.size()));
-			for (int i=0; i < ingredients.size(); i++) {
-				ingredients.set(i, ingredients.get(i).replace("\"", ""));
+			Matcher match = pattern.matcher(line);
+			ArrayList<String> tokens = new ArrayList<>();
+			while (match.find()) {
+				String group = match.group(1);
+				if (group != null)
+					tokens.add(group);
+				else
+					tokens.add(match.group(2));
 			}
+			int id = Integer.valueOf(tokens.get(0));
+			String cuisine = tokens.get(1);
+			List<String> ingredients = tokens.subList(2, tokens.size());
 			recipes.add(new Recipe(id, cuisine, ingredients));
 		}
 		return recipes;
@@ -58,7 +65,7 @@ public class Parser {
 				source = new ArrayList<>();
 				String line = br.readLine();
 
-				while (line != null ) {
+				while (line != null) {
 					source.add(line.replace("\"", ""));
 					line = br.readLine();
 				}
