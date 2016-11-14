@@ -17,6 +17,11 @@ public class Parser {
 	 * 			Ryan McCampbell  rnm6u
 	 */
 
+	/**
+	 * loads list of all recipes from training file
+	 * @param file
+	 * @return all recipes
+	 */
 	public static ArrayList<Recipe> parseRecipeCSV(String file) {
 		Scanner scanner = null;
 		try {
@@ -40,6 +45,11 @@ public class Parser {
 		return recipes;
 	}
 
+	/**
+	 * Loads list of possible ingredients user is allowed to use
+	 * @param file
+	 * @return things
+	 */
 	public static ArrayList<String> loadIngredients(String file){
 		ArrayList<String> source = null;
 		try{
@@ -50,7 +60,6 @@ public class Parser {
 
 				while (line != null ) {
 					source.add(line.replace("\"", ""));
-					System.out.println(source.get(source.size()-1));
 					line = br.readLine();
 				}
 			} finally {

@@ -3,6 +3,7 @@ package main;
 import java.util.ArrayList;
 
 public class Recipe {
+	
 	public int id;
 	public String cuisine;
 	public ArrayList<String> ingredients;
