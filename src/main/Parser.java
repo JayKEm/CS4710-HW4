@@ -40,10 +40,10 @@ public class Parser {
 		return recipes;
 	}
 
-	public static ArrayList<String> loadIngredients(){
+	public static ArrayList<String> loadIngredients(String file){
 		ArrayList<String> source = null;
 		try{
-			BufferedReader br = new BufferedReader(new FileReader("res/ingredients.txt"));
+			BufferedReader br = new BufferedReader(new FileReader(file));
 			try {
 				source = new ArrayList<>();
 				String line = br.readLine();
