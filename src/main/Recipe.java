@@ -3,6 +3,11 @@ package main;
 import java.util.Collection;
 import java.util.HashSet;
 
+/*
+ * Authors: Julian McClinton jm2af
+ * 			Ryan McCampbell  rnm6u
+ */
+
 public class Recipe {
 	
 	public int id;

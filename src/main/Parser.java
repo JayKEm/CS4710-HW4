@@ -11,12 +11,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/*
+ * Authors: Julian McClinton jm2af
+ * 			Ryan McCampbell  rnm6u
+ */
+
 public class Parser {
-	
-	/*
-	 * Authors: Julian McClinton jm2af
-	 * 			Ryan McCampbell  rnm6u
-	 */
 
 	/**
 	 * loads list of all recipes from training file
