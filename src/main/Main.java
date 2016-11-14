@@ -1,6 +1,10 @@
 package main;
 
+import java.util.ArrayList;
+
 public class Main {
+	
+	ArrayList<String> ingredients;
 	
 	/*
 	 * Authors: Julian McClinton jm2af
@@ -8,8 +12,6 @@ public class Main {
 	 */
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
