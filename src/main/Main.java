@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-
 /*
  * Authors: Julian McClinton jm2af
  * 			Ryan McCampbell  rnm6u
@@ -14,6 +13,7 @@ import java.util.TreeSet;
 public class Main {
 	
 	public static HashMap<String, ArrayList<Recipe>> cuisines;
+	public static HashMap<String, TreeSet<String>> ingredUnique;
 	public static ArrayList<String> ingredients;
 	public static ArrayList<Recipe> recipesAll;
 	
@@ -22,13 +22,14 @@ public class Main {
 	
 	public static void main(String[] args) {
 		init();
-		writeUniqueComp();
+		partitionTrainingSet(CROSS_VAL_K);
 	}
 	
 	public static void init(){
 		recipesAll = Parser.parseRecipeCSV("res/training.csv");
 		ingredients = Parser.loadIngredients("res/ingredients.txt");
 		cuisines = getCuisineList(recipesAll);
+		ingredUnique = uniqueIngredients();
 	}
 	
 	
@@ -79,46 +80,36 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * creates a set of ingredients unique to each cuisine
+	 * @return map of cuisine to list of unique ingredients
+	 */
 	@SuppressWarnings("unchecked")
-	public static void writeUniqueComp(){
+	public static HashMap<String, TreeSet<String>> uniqueIngredients(){
 		HashMap<String, TreeSet<String>> cIng = new HashMap<>();
 		HashMap<String, TreeSet<String>> ucIng; // uniqued
-		try{
-			PrintWriter w = new PrintWriter("res/composition_unique.txt", "UTF-8");
 
-			// load all ingredients in cuisines
-			for (String c : new TreeSet<>(cuisines.keySet())){
-				TreeSet<String> ing = new TreeSet<>(); 
-				for(Recipe r : cuisines.get(c)){
-					for(String ingredient : r.ingredients){
-						ing.add(ingredient);
-					}
+		// load all ingredients in cuisines
+		for (String c : new TreeSet<>(cuisines.keySet())){
+			TreeSet<String> ing = new TreeSet<>(); 
+			for(Recipe r : cuisines.get(c)){
+				for(String ingredient : r.ingredients){
+					ing.add(ingredient);
 				}
-				cIng.put(c, ing);
 			}
-			
-			// clone
-			ucIng = (HashMap<String, TreeSet<String>>) cIng.clone();
-			for(String c : new TreeSet<>(ucIng.keySet())){
-				ucIng.put(c, (TreeSet<String>) cIng.get(c).clone());
-			}
-			
-			// produce unique sets
-			for(String c1 : cIng.keySet()){
-				w.print(c1+": ");
-				for(String c2 : new TreeSet<>(cIng.keySet())){
-					if(!c1.equals(c2))
-						ucIng.get(c1).removeAll(cIng.get(c2));
-				}		
-				w.println(ucIng.get(c1).size());
-				for(String in : ucIng.get(c1))
-					w.println("\t[ "+in+" ]");
-			}
-						
-			w.close();
-		} catch(Exception e){
-			e.printStackTrace();			
+			cIng.put(c, ing);
 		}
+
+		// clone
+		ucIng = (HashMap<String, TreeSet<String>>) cIng.clone();
+		for(String c : new TreeSet<>(ucIng.keySet()))
+			ucIng.put(c, (TreeSet<String>) cIng.get(c).clone());
+
+		// produce unique sets
+		for(String c1 : cIng.keySet())
+			for(String c2 : new TreeSet<>(cIng.keySet()))
+				if(!c1.equals(c2)) ucIng.get(c1).removeAll(cIng.get(c2));
+		return ucIng;
 	}
 	
 	public static String f(double i){
@@ -127,13 +118,23 @@ public class Main {
 	
 	/**
 	 * get the subset of training recipes
-	 * @return
+	 * @return map of cuisines whose recipe list have been broken down into k arrays
 	 */
-	public static ArrayList<Recipe> partitionTrainingSet(int k){
-		ArrayList<Recipe> res = new ArrayList<>();
+	public static HashMap<String, ArrayList<ArrayList<Recipe>>> partitionTrainingSet(int k){
+		HashMap<String, ArrayList<ArrayList<Recipe>>> res = new HashMap<>();
 		
 		// for each cuisine
 			// subset of cuisine = #recipes in cuisine / k
+
+		for (String c : new TreeSet<>(cuisines.keySet())){
+			ArrayList<ArrayList<Recipe>> set = new ArrayList<>();
+			ArrayList<Recipe> recipes = cuisines.get(c);
+			int j = 0;
+			
+			for(int i = 0; i<k; i++) set.add(new ArrayList<Recipe>());
+			for(Recipe r : recipes) set.get(j++ % k).add(r);
+			res.put(c, set);
+		}
 		
 		return res;
 	}
