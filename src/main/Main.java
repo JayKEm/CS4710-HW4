@@ -190,8 +190,14 @@ public class Main {
 	}
 
 	public static double gain(Collection<Recipe> set, String ingredient) {
-		
-		return 0.;
+		ArrayList<Recipe> trueSet = new ArrayList<>();
+		ArrayList<Recipe> falseSet = new ArrayList<>();
+		for (Recipe recipe : set) {
+			(recipe.ingredients.contains(ingredient) ? trueSet : falseSet).add(recipe);
+		}
+		return entropy(set) - (
+				trueSet.size() * entropy(trueSet) +
+				falseSet.size() * entropy(falseSet)) / set.size();
 	}
 
 	public static double entropy(Collection<Recipe> set) {
