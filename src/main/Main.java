@@ -2,6 +2,7 @@ package main;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -139,4 +140,21 @@ public class Main {
 		return res;
 	}
 
+	public static double gain(Collection<Recipe> set, String ingredient) {
+		
+		return 0.;
+	}
+
+	public static double entropy(Collection<Recipe> set) {
+		HashMap<String, Integer> counts = new HashMap<>();
+		for (Recipe recipe : set) {
+			counts.put(recipe.cuisine, counts.getOrDefault(recipe.cuisine, 0) + 1);
+		}
+		double entropy = 0.0;
+		for (int count : counts.values()) {
+			double prob = (double)count / set.size();
+			entropy -= prob * Math.log(prob);
+		}
+		return entropy;
+	}
 }
