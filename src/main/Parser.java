@@ -61,20 +61,16 @@ public class Parser {
 		ArrayList<String> source = null;
 		try{
 			BufferedReader br = new BufferedReader(new FileReader(file));
-			try {
-				source = new ArrayList<>();
-				String line = br.readLine();
+			source = new ArrayList<>();
+			String line = br.readLine();
 
-				while (line != null) {
-					source.add(line.replace("\"", ""));
-					line = br.readLine();
-				}
-			} finally {
-				br.close();
+			while (line != null) {
+				source.add(line.replace("\"", ""));
+				line = br.readLine();
 			}
+			br.close();
 		} catch(IOException e){
 			e.printStackTrace();
-			System.exit(1);
 		}
 		
 		return source;

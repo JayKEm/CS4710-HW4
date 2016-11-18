@@ -33,6 +33,55 @@ public class Main {
 		ingredUnique = uniqueIngredients();
 	}
 	
+	public static void decisionTree(TreeSet<Recipe> examples){
+		
+//		SelectFeature(Examples){
+//			Pick Feature that best splits Examples into different result categories
+//			For each Value of Feature
+//				Find Subset S of Examples such that Feature == Value
+//				If all examples in S are in same result category
+//					Mark relevant node in the tree with that category
+//				Else
+//					Call SelectFeature(S)
+//		}
+		
+	}
+	
+	/**
+	 * Create decisiion tree recursively
+	 * @param set
+	 * @return
+	 */
+	public static N0de selectFeature(ArrayList<Recipe> set){
+		String c = set.get(0).cuisine;
+		boolean sameCuisine = false;
+		for(Recipe r : set){
+			if(r.cuisine.equals(c)){
+				sameCuisine = true;
+				break;
+			}
+		}
+		
+		if(sameCuisine) return new N0de(c);
+		
+		ArrayList<Recipe> trueSet = new ArrayList<>();
+		ArrayList<Recipe> falseSet = new ArrayList<>();
+		String ingred = selectIngred(set);
+		
+		for(Recipe r : set){
+			if(r.ingredients.contains(ingred)) trueSet.add(r);
+			else falseSet.add(r);
+		}
+		
+		N0de trueNode = selectFeature(trueSet);
+		N0de falseNode = selectFeature(falseSet);
+		
+		return new N0de(ingred, trueNode, falseNode);
+	}
+	
+	public static String selectIngred(ArrayList<Recipe> set){
+		return "";
+	}
 	
 	/**
 	 * separates all recipes into separate cuisine
@@ -58,7 +107,6 @@ public class Main {
 		int i; HashMap<String, Integer> ing;
 		try{
 			PrintWriter w = new PrintWriter("res/composition.txt", "UTF-8");
-
 			for (String c : new TreeSet<>(cuisines.keySet())){
 				ing = new HashMap<>();
 				for(Recipe r : cuisines.get(c)){
@@ -73,7 +121,7 @@ public class Main {
 
 				w.println(c+": ");
 				for(String in : new TreeSet<>(ing.keySet()))
-					w.println("\t[ "+in+": "+f(ing.get(in)/tot)+"% ]");
+					w.println("\t[ "+in+": "+f(ing.get(in)/tot,3)+"% ]");
 			}
 			w.close();
 		} catch(Exception e){
@@ -113,8 +161,9 @@ public class Main {
 		return ucIng;
 	}
 	
-	public static String f(double i){
-		return String.valueOf(((int)(i*1000))/1000f);
+	public static String f(double i, int d){
+		double doi = Math.pow(10, d);
+		return String.valueOf(((int)(i*doi))/doi);
 	}
 	
 	/**
