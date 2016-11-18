@@ -12,5 +12,10 @@ public class N0de {
 		this.trueChild = trueNode;
 		this.falseChild = falseNode;
 	}
+	
+	public String toString(){ 
+		String s = (cuisine!=null) ? cuisine : attribute;
+		return s +"\n"+ trueChild+"\n"+falseChild;
+	}
 }
 

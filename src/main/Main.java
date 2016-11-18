@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeSet;
 
 /*
@@ -23,7 +24,32 @@ public class Main {
 	
 	public static void main(String[] args) {
 		init();
-		crossValidate();
+		
+		double totAvg = 0;
+		for (int i =0 ; i< 1; i++){
+			int correct=0;
+			
+			List<Recipe> testing = partitionTrainingSet(i);
+			ArrayList<Recipe> training = new ArrayList<>(recipesAll);
+			training.removeAll(testing);
+			
+			for(Recipe r : testing){
+				String c = classify(selectFeature(training), r);
+				if(c.equals(r.cuisine)) correct++;
+				break;
+			}
+			
+			totAvg += correct/(CROSS_VAL_K*(double)testing.size());
+		}
+		
+		System.out.println("Accuracy = " + f(100*totAvg, 2)+"%");
+	}
+	
+	public static String classify(N0de node, Recipe r){
+		System.out.println("Tree: \n"+node);
+		while(node.cuisine==null)
+			node = (r.ingredients.contains(node.attribute)) ? node.trueChild : node.falseChild;
+		return node.cuisine;
 	}
 	
 	public static void init(){
@@ -45,14 +71,6 @@ public class Main {
 //					Call SelectFeature(S)
 //		}
 		
-	}
-	
-	public static void crossValidate(){
-		HashMap<String, ArrayList<ArrayList<Recipe>>> partitions = 
-				partitionTrainingSet(CROSS_VAL_K);
-		for(String cuisine : partitions.keySet()){
-			
-		}
 	}
 	
 	/**
@@ -190,27 +208,9 @@ public class Main {
 		return String.valueOf(((int)(i*doi))/doi);
 	}
 	
-	/**
-	 * get the subset of training recipes
-	 * @return map of cuisines whose recipe list have been broken down into k arrays
-	 */
-	public static HashMap<String, ArrayList<ArrayList<Recipe>>> partitionTrainingSet(int k){
-		HashMap<String, ArrayList<ArrayList<Recipe>>> res = new HashMap<>();
-		
-		// for each cuisine
-			// subset of cuisine = #recipes in cuisine / k
-
-		for (String c : new TreeSet<>(cuisines.keySet())){
-			ArrayList<ArrayList<Recipe>> set = new ArrayList<>();
-			ArrayList<Recipe> recipes = cuisines.get(c);
-			int j = 0;
-			
-			for(int i = 0; i<k; i++) set.add(new ArrayList<Recipe>());
-			for(Recipe r : recipes) set.get(j++ % k).add(r);
-			res.put(c, set);
-		}
-		
-		return res;
+	public static List<Recipe> partitionTrainingSet(int k){
+		int num = recipesAll.size()/CROSS_VAL_K;
+		return recipesAll.subList(k*num, (k+1)*num);
 	}
 
 	public static double gain(Collection<Recipe> set, String ingredient) {
