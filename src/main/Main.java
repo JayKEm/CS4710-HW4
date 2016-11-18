@@ -23,7 +23,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		init();
-		partitionTrainingSet(CROSS_VAL_K);
+		crossValidate();
 	}
 	
 	public static void init(){
@@ -45,6 +45,14 @@ public class Main {
 //					Call SelectFeature(S)
 //		}
 		
+	}
+	
+	public static void crossValidate(){
+		HashMap<String, ArrayList<ArrayList<Recipe>>> partitions = 
+				partitionTrainingSet(CROSS_VAL_K);
+		for(String cuisine : partitions.keySet()){
+			
+		}
 	}
 	
 	/**
@@ -79,8 +87,24 @@ public class Main {
 		return new N0de(ingred, trueNode, falseNode);
 	}
 	
+	
+	/**
+	 * find the ingredient with highest gain
+	 * @param set
+	 * @return
+	 */
 	public static String selectIngred(ArrayList<Recipe> set){
-		return "";
+		double maxGain = -Double.MAX_VALUE;
+		String ingr = "";
+		for(String A : ingredients){
+			double g = gain(set, A);
+			if(g>maxGain){
+				maxGain = g;
+				ingr = A;
+			}
+		}
+		
+		return ingr;
 	}
 	
 	/**
