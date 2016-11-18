@@ -94,17 +94,17 @@ public class Main {
 	 * @return
 	 */
 	public static String selectIngred(ArrayList<Recipe> set){
-		double maxGain = -Double.MAX_VALUE;
-		String ingr = "";
-		for(String A : ingredients){
-			double g = gain(set, A);
-			if(g>maxGain){
+		double maxGain = Double.NEGATIVE_INFINITY;
+		String maxIngred = null;
+		for(String ingred : ingredients){
+			double g = gain(set, ingred);
+			if (g > maxGain) {
 				maxGain = g;
-				ingr = A;
+				maxIngred = ingred;
 			}
 		}
 		
-		return ingr;
+		return maxIngred;
 	}
 	
 	/**
