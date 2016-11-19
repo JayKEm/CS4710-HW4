@@ -26,17 +26,19 @@ public class Main {
 		init();
 		
 		double totAvg = 0;
-		for (int i =0 ; i< 1; i++){
+		for (int i =0 ; i< CROSS_VAL_K; i++){
 			int correct=0;
+			System.out.println("Analyzing subset: "+(i+1));
 			
 			List<Recipe> testing = partitionTrainingSet(i);
 			ArrayList<Recipe> training = new ArrayList<>(recipesAll);
 			training.removeAll(testing);
 			
+			N0de tree = selectFeature(training);
+			System.out.println("Built tree.");
 			for(Recipe r : testing){
-				String c = classify(selectFeature(training), r);
+				String c = classify(tree, r);
 				if(c.equals(r.cuisine)) correct++;
-				break;
 			}
 			
 			totAvg += correct/(CROSS_VAL_K*(double)testing.size());
@@ -46,7 +48,6 @@ public class Main {
 	}
 	
 	public static String classify(N0de node, Recipe r){
-		System.out.println("Tree: \n"+node);
 		while(node.cuisine==null)
 			node = (r.ingredients.contains(node.attribute)) ? node.trueChild : node.falseChild;
 		return node.cuisine;
@@ -59,20 +60,6 @@ public class Main {
 		ingredUnique = uniqueIngredients();
 	}
 	
-	public static void decisionTree(TreeSet<Recipe> examples){
-		
-//		SelectFeature(Examples){
-//			Pick Feature that best splits Examples into different result categories
-//			For each Value of Feature
-//				Find Subset S of Examples such that Feature == Value
-//				If all examples in S are in same result category
-//					Mark relevant node in the tree with that category
-//				Else
-//					Call SelectFeature(S)
-//		}
-		
-	}
-	
 	/**
 	 * Create decisiion tree recursively
 	 * @param set
@@ -80,10 +67,10 @@ public class Main {
 	 */
 	public static N0de selectFeature(ArrayList<Recipe> set){
 		String c = set.get(0).cuisine;
-		boolean sameCuisine = false;
+		boolean sameCuisine = true;
 		for(Recipe r : set){
-			if(r.cuisine.equals(c)){
-				sameCuisine = true;
+			if(!r.cuisine.equals(c)){
+				sameCuisine = false;
 				break;
 			}
 		}
