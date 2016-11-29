@@ -3,6 +3,7 @@ package main;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -24,7 +25,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		init();
-		
+		long build, valid, tot = System.nanoTime();
 		double totAvg = 0;
 		for (int i =0 ; i< CROSS_VAL_K; i++){
 			System.out.println("Analyzing subset: "+(i+1));
@@ -33,31 +34,43 @@ public class Main {
 			ArrayList<Recipe> training = new ArrayList<>(recipesAll);
 			training.removeAll(testing);
 			
+			build = System.nanoTime();
 			N0de tree = makeDecisionTree(training);
+			build = System.nanoTime() - build;
 			System.out.println("Built tree.");
-			tree.print();
+//			tree.print();
+			
+			valid = System.nanoTime();
 			int correct=0;
 			for(Recipe r : testing){
 				String c = classify(tree, r);
 				if(c.equals(r.cuisine)) correct++;
 			}
+			valid = System.nanoTime() - valid;
+			
 			System.out.println(correct + " / " + testing.size());
 			totAvg += (double) correct / (CROSS_VAL_K * testing.size());
+			System.out.println("Tree Build Time: "+formatNanoTime(build));
+//			System.out.println("Cross Val Time: "+ formatNanoTime(valid));
 		}
-		
+		tot = System.nanoTime() - tot;
 		System.out.println("Accuracy = " + f(100*totAvg, 2) + "%");
+		System.out.println("Total Time: " + formatNanoTime(tot));
 	}
 	
 	public static void init(){
 		recipesAll = Parser.parseRecipeCSV("res/training.csv");
 		ingredients = Parser.loadIngredients("res/ingredients.txt");
-//		cuisines = getCuisineList(recipesAll);
-//		ingredUnique = uniqueIngredients();
+		Collections.shuffle(recipesAll);
 	}
 	
 	public static String f(double i, int d){
 		double doi = Math.pow(10, d);
 		return String.valueOf(((int)(i*doi))/doi);
+	}
+	
+	public static String formatNanoTime(long t){
+		return f(t/1000000000d, 2) + " s";	
 	}
 	
 	public static List<Recipe> partitionTrainingSet(int k){

@@ -25,7 +25,7 @@ public class N0de {
 	
 	private void print(int indent, int truth) {
 		for (int i=0; i < indent; i++)
-			System.out.print('\t');
+			System.out.print("  ");
 		if (truth >= 0)
 			System.out.print(truth == 1 ? "Yes: " : "No: ");
 		if (cuisine != null) {
