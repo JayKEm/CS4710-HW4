@@ -27,37 +27,48 @@ public class Main {
 		
 		double totAvg = 0;
 		for (int i =0 ; i< CROSS_VAL_K; i++){
-			int correct=0;
 			System.out.println("Analyzing subset: "+(i+1));
 			
 			List<Recipe> testing = partitionTrainingSet(i);
 			ArrayList<Recipe> training = new ArrayList<>(recipesAll);
 			training.removeAll(testing);
 			
-			N0de tree = selectFeature(training);
+			N0de tree = makeDecisionTree(training);
 			System.out.println("Built tree.");
+			tree.print();
+			int correct=0;
 			for(Recipe r : testing){
 				String c = classify(tree, r);
 				if(c.equals(r.cuisine)) correct++;
 			}
-			
-			totAvg += correct/(CROSS_VAL_K*(double)testing.size());
+			System.out.println(correct + " / " + testing.size());
+			totAvg += (double) correct / (CROSS_VAL_K * testing.size());
 		}
 		
-		System.out.println("Accuracy = " + f(100*totAvg, 2)+"%");
-	}
-	
-	public static String classify(N0de node, Recipe r){
-		while(node.cuisine==null)
-			node = (r.ingredients.contains(node.attribute)) ? node.trueChild : node.falseChild;
-		return node.cuisine;
+		System.out.println("Accuracy = " + f(100*totAvg, 2) + "%");
 	}
 	
 	public static void init(){
 		recipesAll = Parser.parseRecipeCSV("res/training.csv");
 		ingredients = Parser.loadIngredients("res/ingredients.txt");
-		cuisines = getCuisineList(recipesAll);
-		ingredUnique = uniqueIngredients();
+//		cuisines = getCuisineList(recipesAll);
+//		ingredUnique = uniqueIngredients();
+	}
+	
+	public static String f(double i, int d){
+		double doi = Math.pow(10, d);
+		return String.valueOf(((int)(i*doi))/doi);
+	}
+	
+	public static List<Recipe> partitionTrainingSet(int k){
+		int num = recipesAll.size()/CROSS_VAL_K;
+		return recipesAll.subList(k*num, (k+1)*num);
+	}
+
+	public static String classify(N0de node, Recipe r){
+		while(node.cuisine==null)
+			node = (r.ingredients.contains(node.ingredient)) ? node.trueChild : node.falseChild;
+		return node.cuisine;
 	}
 	
 	/**
@@ -65,7 +76,7 @@ public class Main {
 	 * @param set
 	 * @return
 	 */
-	public static N0de selectFeature(ArrayList<Recipe> set){
+	public static N0de makeDecisionTree(ArrayList<Recipe> set){
 		String c = set.get(0).cuisine;
 		boolean sameCuisine = true;
 		for(Recipe r : set){
@@ -86,12 +97,11 @@ public class Main {
 			else falseSet.add(r);
 		}
 		
-		N0de trueNode = selectFeature(trueSet);
-		N0de falseNode = selectFeature(falseSet);
+		N0de trueNode = makeDecisionTree(trueSet);
+		N0de falseNode = makeDecisionTree(falseSet);
 		
 		return new N0de(ingred, trueNode, falseNode);
 	}
-	
 	
 	/**
 	 * find the ingredient with highest gain
@@ -112,6 +122,33 @@ public class Main {
 		return maxIngred;
 	}
 	
+	public static double gain(Collection<Recipe> set, String ingredient) {
+		ArrayList<Recipe> trueSet = new ArrayList<>();
+		ArrayList<Recipe> falseSet = new ArrayList<>();
+		for (Recipe recipe : set) {
+			(recipe.ingredients.contains(ingredient) ? trueSet : falseSet).add(recipe);
+		}
+		return entropy(set) - (
+				trueSet.size() * entropy(trueSet) +
+				falseSet.size() * entropy(falseSet)) / set.size();
+	}
+
+	public static double entropy(Collection<Recipe> set) {
+		HashMap<String, Integer> counts = new HashMap<>();
+		for (Recipe recipe : set) {
+			counts.put(recipe.cuisine, counts.getOrDefault(recipe.cuisine, 0) + 1);
+		}
+		double entropy = 0.0;
+		for (int count : counts.values()) {
+			double prob = (double)count / set.size();
+			entropy -= prob * Math.log(prob);
+		}
+		return entropy;
+	}
+
+
+	/********** Unused **********/
+
 	/**
 	 * separates all recipes into separate cuisine
 	 * @return
@@ -190,37 +227,4 @@ public class Main {
 		return ucIng;
 	}
 	
-	public static String f(double i, int d){
-		double doi = Math.pow(10, d);
-		return String.valueOf(((int)(i*doi))/doi);
-	}
-	
-	public static List<Recipe> partitionTrainingSet(int k){
-		int num = recipesAll.size()/CROSS_VAL_K;
-		return recipesAll.subList(k*num, (k+1)*num);
-	}
-
-	public static double gain(Collection<Recipe> set, String ingredient) {
-		ArrayList<Recipe> trueSet = new ArrayList<>();
-		ArrayList<Recipe> falseSet = new ArrayList<>();
-		for (Recipe recipe : set) {
-			(recipe.ingredients.contains(ingredient) ? trueSet : falseSet).add(recipe);
-		}
-		return entropy(set) - (
-				trueSet.size() * entropy(trueSet) +
-				falseSet.size() * entropy(falseSet)) / set.size();
-	}
-
-	public static double entropy(Collection<Recipe> set) {
-		HashMap<String, Integer> counts = new HashMap<>();
-		for (Recipe recipe : set) {
-			counts.put(recipe.cuisine, counts.getOrDefault(recipe.cuisine, 0) + 1);
-		}
-		double entropy = 0.0;
-		for (int count : counts.values()) {
-			double prob = (double)count / set.size();
-			entropy -= prob * Math.log(prob);
-		}
-		return entropy;
-	}
 }
