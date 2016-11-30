@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -16,7 +17,7 @@ public class Main {
 	
 	public static HashMap<String, ArrayList<Recipe>> cuisines;
 	public static HashMap<String, TreeSet<String>> ingredUnique;
-	public static ArrayList<String> ingredients;
+	public static HashSet<String> ingredients;
 	public static ArrayList<Recipe> recipesAll;
 	
 	public static final int CROSS_VAL_K = 6;
@@ -33,7 +34,7 @@ public class Main {
 			ArrayList<Recipe> training = new ArrayList<>(recipesAll);
 			training.removeAll(testing);
 			
-			N0de tree = makeDecisionTree(training);
+			N0de tree = makeDecisionTree(training, ingredients);
 			System.out.println("Built tree.");
 			tree.print();
 			int correct=0;
@@ -76,7 +77,7 @@ public class Main {
 	 * @param set
 	 * @return
 	 */
-	public static N0de makeDecisionTree(ArrayList<Recipe> set){
+	public static N0de makeDecisionTree(ArrayList<Recipe> set, HashSet<String> ingreds) {
 		String c = set.get(0).cuisine;
 		boolean sameCuisine = true;
 		for(Recipe r : set){
@@ -88,18 +89,19 @@ public class Main {
 		
 		if(sameCuisine) return new N0de(c);
 		
+		String ingred = selectIngred(set, ingreds);
 		ArrayList<Recipe> trueSet = new ArrayList<>();
 		ArrayList<Recipe> falseSet = new ArrayList<>();
-		String ingred = selectIngred(set);
 		
 		for(Recipe r : set){
 			if(r.ingredients.contains(ingred)) trueSet.add(r);
 			else falseSet.add(r);
 		}
-		
-		N0de trueNode = makeDecisionTree(trueSet);
-		N0de falseNode = makeDecisionTree(falseSet);
-		
+
+		ingreds.remove(ingred);
+		N0de trueNode = makeDecisionTree(trueSet, ingreds);
+		N0de falseNode = makeDecisionTree(falseSet, ingreds);
+		ingreds.add(ingred);
 		return new N0de(ingred, trueNode, falseNode);
 	}
 	
@@ -108,10 +110,10 @@ public class Main {
 	 * @param set
 	 * @return
 	 */
-	public static String selectIngred(ArrayList<Recipe> set){
+	public static String selectIngred(ArrayList<Recipe> set, HashSet<String> ingreds){
 		double maxGain = Double.NEGATIVE_INFINITY;
 		String maxIngred = null;
-		for(String ingred : ingredients){
+		for(String ingred : ingreds){
 			double g = gain(set, ingred);
 			if (g > maxGain) {
 				maxGain = g;
@@ -128,8 +130,7 @@ public class Main {
 		for (Recipe recipe : set) {
 			(recipe.ingredients.contains(ingredient) ? trueSet : falseSet).add(recipe);
 		}
-		return entropy(set) - (
-				trueSet.size() * entropy(trueSet) +
+		return -(trueSet.size() * entropy(trueSet) +
 				falseSet.size() * entropy(falseSet)) / set.size();
 	}
 
