@@ -26,7 +26,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		init();
-		long build, valid, tot = System.nanoTime();
+		long build, tot = System.nanoTime();
 		double totAvg = 0;
 		for (int i =0 ; i< CROSS_VAL_K; i++){
 			System.out.println("Analyzing subset: "+(i+1));
@@ -38,21 +38,21 @@ public class Main {
 			build = System.nanoTime();
 			N0de tree = makeDecisionTree(training, ingredients);
 			build = System.nanoTime() - build;
-			System.out.println("Built tree.");
+//			System.out.println("Built tree.");
 //			tree.print();
 			
-			valid = System.nanoTime();
 			int correct=0;
 			for(Recipe r : testing){
 				String c = classify(tree, r);
 				if(c.equals(r.cuisine)) correct++;
 			}
-			valid = System.nanoTime() - valid;
 			
-			System.out.println(correct + " / " + testing.size());
-			totAvg += (double) correct / (CROSS_VAL_K * testing.size());
+			double avg = (double) correct / testing.size();
+			System.out.println("Correct: " + correct + " / " + testing.size() + 
+					" (" + f(100*avg, 2) + "%)");
+			totAvg += avg / CROSS_VAL_K;
 			System.out.println("Tree Build Time: "+formatNanoTime(build));
-//			System.out.println("Cross Val Time: "+ formatNanoTime(valid));
+			System.out.println();
 		}
 		tot = System.nanoTime() - tot;
 		System.out.println("Accuracy = " + f(100*totAvg, 2) + "%");
@@ -61,7 +61,7 @@ public class Main {
 	
 	public static void init(){
 		recipesAll = Parser.parseRecipeCSV("res/training.csv");
-		ingredients = Parser.loadIngredients("res/ingredients.txt");
+		ingredients = new HashSet<>(Parser.loadIngredients("res/ingredients.txt"));
 		Collections.shuffle(recipesAll);
 	}
 	
