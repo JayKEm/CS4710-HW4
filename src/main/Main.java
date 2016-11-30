@@ -55,7 +55,7 @@ public class Main {
 			System.out.println();
 		}
 		tot = System.nanoTime() - tot;
-		System.out.println("Accuracy = " + f(100*totAvg, 2) + "%");
+		System.out.println("Accuracy: " + f(100*totAvg, 2) + "%");
 		System.out.println("Total Time: " + formatNanoTime(tot));
 	}
 	
