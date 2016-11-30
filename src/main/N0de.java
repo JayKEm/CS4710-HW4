@@ -14,9 +14,10 @@ public class N0de {
 		this.falseChild = falseNode;
 	}
 	
-	public String toString(){ 
-		String s = (cuisine!=null) ? cuisine : ingredient;
-		return s +"\n"+ trueChild+"\n"+falseChild;
+	public String toString(){
+		if (cuisine != null)
+			return cuisine;
+		return "[" + ingredient + "? " + trueChild + " : " + falseChild + "]";
 	}
 	
 	public void print() {
@@ -31,7 +32,7 @@ public class N0de {
 		if (cuisine != null) {
 			System.out.println("Cuisine: " + cuisine);
 		} else {
-			System.out.println(ingredient);
+			System.out.println(ingredient + "?");
 			trueChild.print(indent + 1, 1);
 			falseChild.print(indent + 1, 0);
 		}
